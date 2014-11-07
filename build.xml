@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="personal.weather.station" basedir="." default="all">
+
+  <property name="java.src.dir" value="src"/>
+  <property name="build.dir" value="build"/>
+  <property name="build.classes.dir" value="${build.dir}/classes"/>
+  <property name="build.dist.dir" value="${build.dir}/dist"/>
+  <property name="lib.dir" value="lib"/>
+
+  <property name="jar.name" value="pws.jar"/>
+  <property name="one.jar" value="one-jar-boot-0.96.jar"/>
+
+
+  <path id="project.classpath">
+    <fileset dir="${lib.dir}">
+      <include name="*"/>
+    </fileset>
+  </path>
+
+  <target name="all" description="Builds the binary and run it">
+    <antcall target="run"/>
+  </target>
+
+  <target name="run" depends="dist">
+    <java jar="${build.dir}/${jar.name}" fork="true"/>
+  </target>
+
+  <target name="dist" depends="build">
+    <mkdir dir="${build.dist.dir}/main"/>
+    <jar destfile="${build.dist.dir}/main/main.jar" basedir="${build.classes.dir}">
+      <manifest>
+        <attribute name="Main-Class" value="org.michaelyeh.pws.WundergroundClient"/>
+      </manifest>
+    </jar>
+
+    <antcall target="build-one-jar" inheritall="true"/>
+  </target>
+
+  <target name="build">
+    <mkdir dir="${build.classes.dir}"/>
+
+    <javac srcdir="${java.src.dir}" destdir="${build.classes.dir}" debug="true" failonerror="true"
+           classpathref="project.classpath" source="1.7">
+      <include name="**"/>
+    </javac>
+
+    <copy todir="${build.classes.dir}">
+      <fileset dir=".">
+        <include name="resources/**"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="build-one-jar">
+    <unjar src="${lib.dir}/${one.jar}" dest="${build.dist.dir}">
+      <patternset>
+        <include name="com/**/*.class"/>
+        <include name="doc/one-jar-license.txt"/>
+      </patternset>
+    </unjar>
+
+    <copy todir="${build.dist.dir}/lib" flatten="true">
+      <fileset dir="${lib.dir}">
+        <include name="**"/>
+      </fileset>
+    </copy>
+
+    <jar compress="true" destfile="${build.dir}/${jar.name}">
+      <fileset dir="${build.dist.dir}">
+        <include name="**"/>
+      </fileset>
+      <manifest>
+        <attribute name="Main-Class" value="com.simontuffs.onejar.Boot"/>
+      </manifest>
+    </jar>
+  </target>
+
+
+  <target name="clean">
+    <delete dir="${build.dir}"/>
+  </target>
+
+</project>
