@@ -8,7 +8,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.LaxRedirectStrategy;
@@ -42,10 +41,10 @@ public class LaCrosseAlertsScraper
 
     public static String scrapeData() throws Exception
     {
-        BasicCookieStore cookieStore = new BasicCookieStore();
+        PersistentCookieStore cookieStore = new PersistentCookieStore();
         Header header = new BasicHeader(HttpHeaders.USER_AGENT,
                 "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8H7 Safari/6533.18.5");
-        List<Header> headers = new ArrayList<Header>(1);
+        List<Header> headers = new ArrayList<>(1);
         headers.add(header);
         CloseableHttpClient httpclient = HttpClients.custom()
                 .setDefaultCookieStore(cookieStore)
@@ -54,66 +53,18 @@ public class LaCrosseAlertsScraper
                 .build();
         try
         {
-            HttpGet httpget = new HttpGet("https://www.lacrossealerts.com/");
-            CloseableHttpResponse response1 = httpclient.execute(httpget);
-            try
-            {
-                HttpEntity entity = response1.getEntity();
+            // try to grab data using the remember me cookie without logging in
+            String data = grabData(httpclient);
+            if (data != null && data.startsWith("<?xml version=\"1.0\"?><data>\n<success>true</success>"))
+                return data;
 
-                System.out.println("Login page get: " + response1.getStatusLine());
-                EntityUtils.consume(entity);
-            }
-            finally
-            {
-                response1.close();
-            }
+            // try logging in and grabbing data
+            getLandingPage(httpclient);
 
-            HttpUriRequest login = RequestBuilder.post()
-                    .setUri(new URI("https://www.lacrossealerts.com/login"))
-                    .addParameter("username", Config.LACROSSE_USERNAME)
-                    .addParameter("password", Config.LACROSSE_PASSWORD)
-                    .addParameter("remember[]", "remember")
-                    .addParameter("login", "")
-                    .build();
-            CloseableHttpResponse response2 = httpclient.execute(login);
-            try
-            {
-                HttpEntity entity = response2.getEntity();
-                System.out.println("Login form: " + response2.getStatusLine());
-                int statusCode = response2.getStatusLine().getStatusCode();
+            login(httpclient);
 
-                if (statusCode != HttpStatus.SC_OK)
-                    throw new Exception("Unexpected response");
+            return grabData(httpclient);
 
-                EntityUtils.consume(entity);
-            }
-            finally
-            {
-                response2.close();
-            }
-
-            httpget = new HttpGet("https://www.lacrossealerts.com/v1/observations/" + Config.LACROSSE_DEVICE_ID + "?expand=stats1hr,stats24hr,stats1wk,stats1mo,stats1yr&filter=outdoor.temp,outdoor.rainRelative,outdoor.rainTotal,outdoor.windGust");
-            CloseableHttpResponse response3 = httpclient.execute(httpget);
-            try
-            {
-                HttpEntity entity = response3.getEntity();
-                int statusCode = response3.getStatusLine().getStatusCode();
-
-
-                System.out.println("Scrape data: " + response3.getStatusLine());
-
-                if (statusCode == HttpStatus.SC_OK)
-                {
-                    String bodyAsString = EntityUtils.toString(entity);
-                    EntityUtils.consume(entity);
-                    return bodyAsString;
-                }
-
-            }
-            finally
-            {
-                response3.close();
-            }
         }
         catch (URISyntaxException | IOException e)
         {
@@ -132,6 +83,79 @@ public class LaCrosseAlertsScraper
 
         throw new Exception("Unexpected response");
     }
+
+    private static void getLandingPage(CloseableHttpClient httpclient) throws IOException
+    {
+        HttpGet httpget = new HttpGet("https://www.lacrossealerts.com/");
+        CloseableHttpResponse response = httpclient.execute(httpget);
+        try
+        {
+            HttpEntity entity = response.getEntity();
+
+            System.out.println("Login page get: " + response.getStatusLine());
+            EntityUtils.consume(entity);
+        }
+        finally
+        {
+            response.close();
+        }
+    }
+
+    private static void login(CloseableHttpClient httpclient) throws Exception
+    {
+        HttpUriRequest login = RequestBuilder.post()
+                .setUri(new URI("https://www.lacrossealerts.com/login"))
+                .addParameter("username", Config.LACROSSE_USERNAME)
+                .addParameter("password", Config.LACROSSE_PASSWORD)
+                .addParameter("remember[]", "remember")
+                .addParameter("login", "")
+                .build();
+        CloseableHttpResponse response = httpclient.execute(login);
+        try
+        {
+            HttpEntity entity = response.getEntity();
+            System.out.println("Login form: " + response.getStatusLine());
+            int statusCode = response.getStatusLine().getStatusCode();
+
+            if (statusCode != HttpStatus.SC_OK)
+                throw new Exception("Unexpected response");
+
+            EntityUtils.consume(entity);
+        }
+        finally
+        {
+            response.close();
+        }
+
+    }
+
+    private static String grabData(CloseableHttpClient httpclient) throws Exception
+    {
+        HttpGet httpget = new HttpGet("https://www.lacrossealerts.com/v1/observations/" + Config.LACROSSE_DEVICE_ID + "?expand=stats1hr,stats24hr&filter=outdoor.temp,outdoor.rainRelative,outdoor.rainTotal,outdoor.windGust");
+        CloseableHttpResponse response = httpclient.execute(httpget);
+        try
+        {
+            HttpEntity entity = response.getEntity();
+            int statusCode = response.getStatusLine().getStatusCode();
+
+
+            System.out.println("Scrape data: " + response.getStatusLine());
+
+            if (statusCode == HttpStatus.SC_OK)
+            {
+                String bodyAsString = EntityUtils.toString(entity);
+                EntityUtils.consume(entity);
+                return bodyAsString;
+            }
+
+        }
+        finally
+        {
+            response.close();
+        }
+        throw new Exception("Unexpected response");
+    }
+
 
     public static void main(String[] args) throws Exception
     {
