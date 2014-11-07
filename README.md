@@ -10,5 +10,12 @@ it on the Wunderground website.  Once the data is uploaded, there's a great iPad
 https://itunes.apple.com/us/app/wunderstation-weather-from/id906099986?mt=8
 
 
+Dependencies:
+JDK1.7 and Ant in your path
+
+To Build and Run:
+Modify Config.java with the appropriate account info.
+Just type ant in the base directory.
+
 Once the binary is created, you can setup a cronjob to run every hour to continually post new data to the Wunderground website.
 */60 * * * * java -jar pws.jar
