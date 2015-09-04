@@ -93,6 +93,9 @@ public class WundergroundClient
      */
     private void appendUrl(StringBuffer sb, String parameter)
     {
+        if (sb == null || parameter == null)
+            return;
+
         try
         {
             sb.append(URLEncoder.encode(parameter, "UTF-8"));
@@ -166,10 +169,10 @@ public class WundergroundClient
     {
         try
         {
-            new WundergroundClient(ParseData.read(LaCrosseAlertsScraper.scrapeData())).postData();
+            new WundergroundClient(ParseData.readJSON(LaCrosseAlertsScraper.scrapeData())).postData();
 
             // read cached sample.xml instead of real time data
-            // new WundergroundClient(ParseData.main(args)).postData();
+            //new WundergroundClient(ParseData.parseSample(args)).postData();
         }
         catch (Exception e)
         {

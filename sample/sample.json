@@ -1,0 +1,54 @@
+{
+  "device0": {
+    "success": true,
+    "device_type": null,
+    "obs": [
+      {
+        "id": "1",
+        "Device_id": "1",
+        "model": "WS2816",
+        "TimeStamp": "1441332875",
+        "Icon": "0",
+        "StormAlarm": "0",
+        "IndoorTemp": 75.6,
+        "IndoorHumid": "50",
+        "OutdoorTemp": 66,
+        "OutdoorHumid": "58",
+        "DewPoint": 50.8,
+        "WindDir": "W",
+        "WindVelocity": 1.6,
+        "GustVelocity": 2.6,
+        "Rain1hr": 0,
+        "Rain24hr": 0,
+        "RainWeek": 0,
+        "RainMonth": 0,
+        "RainTotal": 24.41,
+        "Pressure": 29.81,
+        "Tendency": "2",
+        "success": 9,
+        "timestamp": null,
+        "utctime": 1441332875
+      }
+    ],
+    "alerts": null,
+    "ispws": 1,
+    "unit": {
+      "temp": "&deg;F",
+      "temp2": "&deg;F",
+      "rh": "%",
+      "outrh": "%",
+      "dewpoint": "&deg;F",
+      "wind": null,
+      "windv": "MPH",
+      "gustv": "MPH",
+      "rain1h": "in",
+      "rain24h": "in",
+      "rainW": "in",
+      "rainM": "in",
+      "rainT": "in",
+      "pressure": "inHg"
+    },
+    "device_id": "1",
+    "expired": "0"
+  }
+}

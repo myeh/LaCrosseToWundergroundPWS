@@ -55,10 +55,11 @@ public class LaCrosseAlertsScraper
         {
             // try to grab data using the remember me cookie without logging in
             String data = grabData(httpclient);
-            if (data != null && data.startsWith("<?xml version=\"1.0\"?><data>\n<success>true</success>"))
+            if (data != null && data.startsWith("{\"device0\":{\"success\":true"))
                 return data;
 
             // try logging in and grabbing data
+            // as of 09/03/15 - doesn't look like we need to auth any more
             getLandingPage(httpclient);
 
             login(httpclient);
@@ -131,7 +132,7 @@ public class LaCrosseAlertsScraper
 
     private static String grabData(CloseableHttpClient httpclient) throws Exception
     {
-        HttpGet httpget = new HttpGet("https://www.lacrossealerts.com/v1/observations/" + Config.LACROSSE_DEVICE_ID + "?expand=stats1hr,stats24hr&filter=outdoor.temp,outdoor.rainRelative,outdoor.rainTotal,outdoor.windGust");
+        HttpGet httpget = new HttpGet("http://lacrossealertsmobile.com/laxservices/device_info.php?&deviceid=" + Config.LACROSSE_DEVICE_ID);
         CloseableHttpResponse response = httpclient.execute(httpget);
         try
         {
