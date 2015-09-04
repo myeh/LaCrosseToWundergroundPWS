@@ -142,18 +142,36 @@ public class ParseData
 
         if (direction.equalsIgnoreCase("n"))
             return "0";
+        else if (direction.equalsIgnoreCase("nne"))
+            return "22.5";
         else if (direction.equalsIgnoreCase("ne"))
             return "45";
+        else if (direction.equalsIgnoreCase("ene"))
+            return "67.5";
         else if (direction.equalsIgnoreCase("e"))
             return "90";
+        else if (direction.equalsIgnoreCase("ese"))
+            return "112.5";
         else if (direction.equalsIgnoreCase("se"))
             return "135";
+        else if (direction.equalsIgnoreCase("sse"))
+            return "157.5";
         else if (direction.equalsIgnoreCase("s"))
             return "180";
+        else if (direction.equalsIgnoreCase("ssw"))
+            return "202.5";
         else if (direction.equalsIgnoreCase("sw"))
             return "225";
+        else if (direction.equalsIgnoreCase("wsw"))
+            return "247.5";
         else if (direction.equalsIgnoreCase("w"))
             return "270";
+        else if (direction.equalsIgnoreCase("wnw"))
+            return "292.5";
+        else if (direction.equalsIgnoreCase("nw"))
+            return "315";
+        else if (direction.equalsIgnoreCase("nnw"))
+            return "337.5";
         else
             return "0";
     }
