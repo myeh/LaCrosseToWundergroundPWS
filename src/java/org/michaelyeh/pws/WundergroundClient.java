@@ -113,7 +113,7 @@ public class WundergroundClient
     private static String getGMT(long time)
     {
         Date localTime = new Date(time * 1000);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         return sdf.format(localTime);
